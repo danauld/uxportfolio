@@ -2,136 +2,210 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daniel Auld - XR UX Portfolio</title>
-    <!-- A-Frame Core -->
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <!-- Environment Component for a professional look -->
-    <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Daniel Auld - Spatial Portfolio</title>
+    <!-- Upgraded to A-Frame 1.6.0 for better WebXR/Vision Pro support -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.3/dist/aframe-environment-component.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #111; font-family: sans-serif; }
-        #overlay {
+        body { margin: 0; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        /* The Compatibility Gate Overlay */
+        #compatibility-gate {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            text-align: center;
+        }
+        #compatibility-gate h1 { font-weight: 200; font-size: 2.5rem; margin-bottom: 1rem; }
+        #compatibility-gate p { color: #888; max-width: 400px; line-height: 1.6; }
+        .hidden { display: none !important; }
+        .bypass-link { margin-top: 30px; color: #333; font-size: 0.8rem; text-decoration: none; cursor: pointer; }
+        
+        /* Simple HUD for context */
+        #hud {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            z-index: 10;
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 30px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
             pointer-events: none;
-            text-align: center;
+            transition: opacity 0.5s;
+            border: 1px solid rgba(255,255,255,0.1);
         }
     </style>
 </head>
 <body>
 
-    <div id="overlay">Gaze at a station to see details • Daniel Auld - UX Designer</div>
+    <!-- Compatibility Gate -->
+    <div id="compatibility-gate">
+        <h1> Vision Pro Required</h1>
+        <p>This spatial portfolio is designed exclusively for eye-tracking interactions.</p>
+        <p>Please visit this URL on your Apple Vision Pro.</p>
+        <a class="bypass-link" onclick="document.getElementById('compatibility-gate').classList.add('hidden')">Developer Override (Test on Desktop)</a>
+    </div>
 
-    <a-scene cursor="fuse: true; rayOrigin: mouse" raycaster="objects: .interactable">
-        
-        <!-- Asset Management -->
+    <!-- HUD -->
+    <div id="hud" class="hidden">Daniel Auld • Look to hover • Pinch to select</div>
+
+    <!-- 
+        SCENE SETUP:
+        cursor="rayOrigin: mouse" is the KEY for Vision Pro. 
+        It maps the system's eye-tracking directly to 'mouse' events. 
+        We disable 'fuse' because we want 'pinch' (click) not 'stare to click'.
+    -->
+    <a-scene cursor="rayOrigin: mouse; fuse: false" raycaster="objects: .interactable" background="color: #000">
+
         <a-assets>
-            <img id="grid" src="https://img.gs/bb95df6434/s2/https://i.imgur.com/vHq0A6r.png" crossorigin="anonymous">
+            <!-- Preloading assets if needed -->
         </a-assets>
 
-        <!-- Environment: Clean, Minimalist "Spatial" feel -->
-        <a-entity environment="preset: contact; groundColor: #1a1a1a; grid: lines; gridColor: #333; lighting: point; skyType: gradient; skyColor: #050505"></a-entity>
+        <!-- Environment: "Tron" style dark grid, very Apple-esque -->
+        <a-entity environment="preset: starry; groundColor: #050505; grid: 1x1; gridColor: #222; lightPosition: 0 5 -5"></a-entity>
 
-        <!-- Main Title -->
-        <a-entity position="0 3.5 -4" align="center">
-            <a-text value="DANIEL AULD" color="#FFF" width="8" align="center" font="exo2bold"></a-text>
-            <a-text value="Senior UX Researcher & Designer" position="0 -0.5 0" color="#AAA" width="4" align="center"></a-text>
+        <!-- TITLE BLOCK -->
+        <a-entity position="0 3 -4">
+            <a-text value="DANIEL AULD" color="#FFF" align="center" width="7" font="exo2bold"></a-text>
+            <a-text value="Spatial Experience Designer" position="0 -0.4 0" color="#888" align="center" width="3.5"></a-text>
         </a-entity>
 
-        <!-- PORTFOLIO STATIONS -->
-        
-        <!-- Station 1: SANE Australia -->
-        <a-entity position="-2 1.5 -3" class="interactable" 
-                  animation__mouseenter="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
-                  animation__mouseleave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">
-            <a-box color="#FF4D4D" depth="0.1" height="1" width="1.5">
-                <a-text value="SANE Australia" position="0 0.7 0.1" align="center" width="3"></a-text>
-                <a-text value="2025 Good Design\nGold Winner" position="0 0 0.1" align="center" width="2" color="#000"></a-text>
+        <!-- PORTFOLIO ITEM 1: SANE Australia -->
+        <a-entity position="-1.8 1.4 -3" class="interactable"
+                  animation__scale="property: scale; to: 1.05 1.05 1.05; dur: 200; startEvents: mouseenter"
+                  animation__descale="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">
+            
+            <!-- The Card -->
+            <a-box color="#1c1c1e" width="1.4" height="1.8" depth="0.05" opacity="0.9" metalness="0.5" roughness="0.2">
+                <!-- Inner Border glow effect on hover via opacity -->
+                <a-plane width="1.45" height="1.85" position="0 0 -0.01" color="#FF4D4D" opacity="0"
+                         animation__hover="property: opacity; to: 0.4; dur: 200; startEvents: mouseenter"
+                         animation__leave="property: opacity; to: 0; dur: 200; startEvents: mouseleave"></a-plane>
             </a-box>
-            <!-- Info Panel (Visible on Gaze - simplified with opacity for demo) -->
-            <a-plane position="0 -1 0.1" width="2" height="0.8" color="#FFF" opacity="0"
-                     animation__show="property: opacity; to: 0.9; startEvents: mouseenter"
-                     animation__hide="property: opacity; to: 0; startEvents: mouseleave">
-                <a-text value="Led UX research and redesign\nof national peer-support platform.\nCo-design focused." color="#333" align="center" width="1.8" position="0 0 0.01"></a-text>
-            </a-plane>
+
+            <!-- Text Content -->
+            <a-text value="SANE Australia" position="0 0.5 0.04" align="center" width="2.8" color="#FFF"></a-text>
+            <a-text value="GOLD WINNER\n2025 Good Design Awards" position="0 0.2 0.04" align="center" width="1.8" color="#FF4D4D"></a-text>
+            
+            <!-- Description (Hidden until looked at) -->
+            <a-text value="National peer-support platform\nredesign. Human-centred\nco-design approach." 
+                    position="0 -0.4 0.04" align="center" width="1.6" color="#AAA" opacity="0"
+                    animation__fadein="property: opacity; to: 1; dur: 300; startEvents: mouseenter"
+                    animation__fadeout="property: opacity; to: 0; dur: 200; startEvents: mouseleave"></a-text>
         </a-entity>
 
-        <!-- Station 2: Foxtel | Hubbl -->
-        <a-entity position="0 1.5 -3.5" class="interactable"
-                  animation__mouseenter="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
-                  animation__mouseleave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">
-            <a-box color="#333" depth="0.1" height="1" width="1.5">
-                <a-text value="FOXTEL | Hubbl" position="0 0.7 0.1" align="center" width="3"></a-text>
-                <a-text value="Binge, Kayo, Flash" position="0 0 0.1" align="center" width="2" color="#FFF"></a-text>
+        <!-- PORTFOLIO ITEM 2: Hubbl / Foxtel -->
+        <a-entity position="0 1.4 -2.8" class="interactable"
+                  animation__scale="property: scale; to: 1.05 1.05 1.05; dur: 200; startEvents: mouseenter"
+                  animation__descale="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">
+            
+            <a-box color="#1c1c1e" width="1.4" height="1.8" depth="0.05" opacity="0.9" metalness="0.5" roughness="0.2">
+                <a-plane width="1.45" height="1.85" position="0 0 -0.01" color="#007AFF" opacity="0"
+                         animation__hover="property: opacity; to: 0.4; dur: 200; startEvents: mouseenter"
+                         animation__leave="property: opacity; to: 0; dur: 200; startEvents: mouseleave"></a-plane>
             </a-box>
-            <a-plane position="0 -1 0.1" width="2" height="0.8" color="#FFF" opacity="0"
-                     animation__show="property: opacity; to: 0.9; startEvents: mouseenter"
-                     animation__hide="property: opacity; to: 0; startEvents: mouseleave">
-                <a-text value="Figma prototyping for CTV & Mobile.\nManaged design consistency for\nthe Hubbl ecosystem launch." color="#333" align="center" width="1.8" position="0 0 0.01"></a-text>
-            </a-plane>
+
+            <a-text value="Hubbl & Foxtel" position="0 0.5 0.04" align="center" width="2.8" color="#FFF"></a-text>
+            <a-text value="Streaming Ecosystem\nUX Lead" position="0 0.2 0.04" align="center" width="1.8" color="#007AFF"></a-text>
+            
+            <a-text value="Designed interactive prototypes\nfor TV and Mobile.\nConsolidated Binge/Kayo UX." 
+                    position="0 -0.4 0.04" align="center" width="1.6" color="#AAA" opacity="0"
+                    animation__fadein="property: opacity; to: 1; dur: 300; startEvents: mouseenter"
+                    animation__fadeout="property: opacity; to: 0; dur: 200; startEvents: mouseleave"></a-text>
         </a-entity>
 
-        <!-- Station 3: Digital Health Agency -->
-        <a-entity position="2 1.5 -3" class="interactable"
-                  animation__mouseenter="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
-                  animation__mouseleave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">
-            <a-box color="#0077BE" depth="0.1" height="1" width="1.5">
-                <a-text value="ADHA" position="0 0.7 0.1" align="center" width="3"></a-text>
-                <a-text value="National Digital Health\nStrategy Implementation" position="0 0 0.1" align="center" width="2" color="#FFF"></a-text>
+        <!-- PORTFOLIO ITEM 3: ADHA -->
+        <a-entity position="1.8 1.4 -3" class="interactable"
+                  animation__scale="property: scale; to: 1.05 1.05 1.05; dur: 200; startEvents: mouseenter"
+                  animation__descale="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave">
+            
+            <a-box color="#1c1c1e" width="1.4" height="1.8" depth="0.05" opacity="0.9" metalness="0.5" roughness="0.2">
+                <a-plane width="1.45" height="1.85" position="0 0 -0.01" color="#34C759" opacity="0"
+                         animation__hover="property: opacity; to: 0.4; dur: 200; startEvents: mouseenter"
+                         animation__leave="property: opacity; to: 0; dur: 200; startEvents: mouseleave"></a-plane>
             </a-box>
-            <a-plane position="0 -1 0.1" width="2" height="0.8" color="#FFF" opacity="0"
-                     animation__show="property: opacity; to: 0.9; startEvents: mouseenter"
-                     animation__hide="property: opacity; to: 0; startEvents: mouseleave">
-                <a-text value="2023 Good Design Winner.\nDesigned 'my health' mobile app\nand clinical safety copy." color="#333" align="center" width="1.8" position="0 0 0.01"></a-text>
-            </a-plane>
+
+            <a-text value="Digital Health Agency" position="0 0.5 0.04" align="center" width="2.6" color="#FFF"></a-text>
+            <a-text value="my health app\n2023 Winner" position="0 0.2 0.04" align="center" width="1.8" color="#34C759"></a-text>
+            
+            <a-text value="End-to-end design for\nnational health app.\nClinical safety validation." 
+                    position="0 -0.4 0.04" align="center" width="1.6" color="#AAA" opacity="0"
+                    animation__fadein="property: opacity; to: 1; dur: 300; startEvents: mouseenter"
+                    animation__fadeout="property: opacity; to: 0; dur: 200; startEvents: mouseleave"></a-text>
         </a-entity>
 
-        <!-- Personal Facts / "Humble Brags" -->
-        <a-entity position="0 0.5 -2">
-            <a-text value="Spatial Enthusiast • 1st AU Vision Pro Owner • UX Mentor" color="#888" align="center" width="3"></a-text>
-        </a-entity>
-
-        <!-- Player Camera / Controls -->
+        <!-- CAMERA RIG - NO CURSOR VISIBLE -->
         <a-entity id="rig" position="0 1.6 0">
-            <a-camera id="camera">
-                <!-- Cursor for VR mode interactions -->
-                <a-cursor fuse="true" fuse-timeout="1500" 
-                          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
-                          material="color: white; shader: flat"
-                          position="0 0 -1"
-                          raycaster="objects: .interactable">
-                    <a-animation begin="fusing" easing="ease-in" attribute="scale"
-                                 fill="forwards" from="1 1 1" to="0.1 0.1 0.1" dur="1500"></a-animation>
-                    <a-animation begin="mouseleave" easing="ease-in" attribute="scale"
-                                 fill="backwards" from="0.1 0.1 0.1" to="1 1 1" dur="100"></a-animation>
-                </a-cursor>
-            </a-camera>
-            <!-- Hand Tracked Controllers (Optional for Vision Pro / Quest) -->
-            <a-entity laser-controls="hand: left" raycaster="objects: .interactable; far: 5"></a-entity>
-            <a-entity laser-controls="hand: right" raycaster="objects: .interactable; far: 5"></a-entity>
+            <!-- 
+                Look Ma, no cursor! 
+                We removed the <a-cursor> entity completely.
+                This ensures the user only sees the real world and your content.
+            -->
+            <a-camera look-controls="enabled: true"></a-camera>
+            
+            <!-- Optional: Hand controllers for full immersion if they use them -->
+            <a-entity laser-controls="hand: left" raycaster="objects: .interactable; far: 10"></a-entity>
+            <a-entity laser-controls="hand: right" raycaster="objects: .interactable; far: 10"></a-entity>
         </a-entity>
 
     </a-scene>
 
     <script>
-        // Simple UI feedback for clicks
-        const stations = document.querySelectorAll('.interactable');
-        const overlay = document.querySelector('#overlay');
+        // 1. Apple Vision Pro Detection Logic
+        // The Vision Pro User Agent typically masquerades as a Macintosh but has Touch Points.
+        // It also specifically supports WebXR "immersive-vr" which we could check, 
+        // but this UA check is a fast synchronous way to gate the UI.
+        
+        function isLikelyVisionPro() {
+            const isMac = navigator.userAgent.includes("Macintosh");
+            const hasTouch = navigator.maxTouchPoints > 0;
+            // On AVP, isMac is true AND hasTouch is true. 
+            // On a normal MacBook, hasTouch is false. 
+            // On an iPad, it might say Macintosh but usually only if "Request Desktop Site" is on.
+            return (isMac && hasTouch) || navigator.userAgent.includes("Vision"); 
+        }
 
-        stations.forEach(station => {
-            station.addEventListener('click', () => {
-                const title = station.querySelector('a-text').getAttribute('value');
-                overlay.textContent = "Viewing: " + title;
+        window.addEventListener('DOMContentLoaded', () => {
+            const gate = document.getElementById('compatibility-gate');
+            const hud = document.getElementById('hud');
+
+            if (isLikelyVisionPro()) {
+                // If it's Vision Pro, hide the gate immediately
+                gate.classList.add('hidden');
+                hud.classList.remove('hidden');
+            } else {
+                // Keep the gate visible for Desktop/Mobile users
+                console.log("Not detected as Vision Pro. Showing gate.");
+            }
+        });
+
+        // 2. Click Handling (Pinch)
+        // Even though we use hover effects, we can still add click listeners for "Select" (Pinch)
+        // giving the user tactile feedback or opening a link.
+        document.querySelectorAll('.interactable').forEach(el => {
+            el.addEventListener('click', () => {
+                // Visual feedback for the "Pinch"
+                el.setAttribute('animation__click', 'property: scale; to: 0.95 0.95 0.95; dur: 100; easing: easeOutQuad');
                 setTimeout(() => {
-                    overlay.textContent = "Gaze at a station to see details";
-                }, 3000);
+                    el.removeAttribute('animation__click');
+                    // Reset scale handled by mouseleave/enter logic usually, 
+                    // but we can force it back if needed or let the existing hover logic handle it.
+                    el.setAttribute('scale', '1.05 1.05 1.05'); 
+                }, 100);
+                
+                const title = el.querySelector('a-text').getAttribute('value');
+                document.getElementById('hud').textContent = "Selected: " + title;
             });
         });
     </script>
